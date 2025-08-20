@@ -7,12 +7,18 @@ package edu.eci.arsw.threads;
 
 /**
  *
- * @author hcadavid
+ * @author hcadavid. lepeanutbutter. lanapequin.
+ * @version August 20, 2025
  */
 public class CountThreadsMain {
     
-    public static void main(String a[]){
-        
+    public static void main(String[] a){
+        CountThread firstThread = new CountThread(0, 99);
+        CountThread secondThread = new CountThread(99, 199);
+        CountThread thirdThread = new CountThread(200, 299);
+        firstThread.start();
+        secondThread.start();
+        thirdThread.start();
     }
     
 }

@@ -3,28 +3,63 @@
 ### Arquitecturas de Software - ARSW
 ## Ejercicio Introducción al paralelismo - Hilos - Caso BlackListSearch
 
-
-### Dependencias:
-####   Lecturas:
-*  [Threads in Java](http://beginnersbook.com/2013/03/java-threads/)  (Hasta 'Ending Threads')
-*  [Threads vs Processes]( http://cs-fundamentals.com/tech-interview/java/differences-between-thread-and-process-in-java.php)
-
 ### Descripción
-  Este ejercicio contiene una introducción a la programación con hilos en Java, además de la aplicación a un caso concreto.
-  
+Este ejercicio introduce los conceptos básicos de la programación con hilos en Java. Además, explora cómo implementar y controlar la ejecución de estos hilos, específicamente en el contexto de un caso práctico. Para facilitar el desarrollo, se ha utilizado Lombok para generar automáticamente los métodos getters y setters, mejorando la eficiencia del código.
 
-**Parte I - Introducción a Hilos en Java**
+El laboratorio se ha desarrollado utilizando el entorno IntelliJ IDEA Community Edition, y para asegurar la calidad del código y detectar posibles errores o vulnerabilidades, se ha integrado análisis estático mediante SonarQube for IDE o SonarLint, permitiendo así mantener buenas prácticas de codificación durante todo el proceso de desarrollo.
 
+### **Parte I - Introducción a Hilos en Java**
+
+#### **1. Implementación de la Clase CountThread**
+
+El primer paso consistió en la implementación de la clase CountThread, que define el ciclo de vida de un hilo. El propósito de esta clase es imprimir en pantalla los números dentro de un rango determinado, desde A hasta B. En este caso, se decidió usar streams para gestionar de manera eficiente la impresión de los números.
 
 ![](img/count_thread_implementation.png)
 
+El uso de streams en Java facilita el manejo de colecciones y la ejecución de operaciones de manera más declarativa y controlada. Al emplear streams, se tiene un control más fino sobre la secuencia de salida y la sincronización de los resultados, reduciendo posibles inconsistencias al manejar múltiples hilos.
 
-1. De acuerdo con lo revisado en las lecturas, complete las clases CountThread, para que las mismas definan el ciclo de vida de un hilo que imprima por pantalla los números entre A y B.
-2. Complete el método __main__ de la clase CountMainThreads para que:
-	1. Cree 3 hilos de tipo CountThread, asignándole al primero el intervalo [0..99], al segundo [99..199], y al tercero [200..299].
-	2. Inicie los tres hilos con 'start()'.
-	3. Ejecute y revise la salida por pantalla. 
-	4. Cambie el incio con 'start()' por 'run()'. Cómo cambia la salida?, por qué?.
+#### **2. Creación y Ejecución de los Hilos**
+
+Una vez que se implementó la clase CountThread, se crearon tres instancias de esta clase, cada una con un rango diferente de números:
+
+- Hilo 1: desde [0..99]
+- Hilo 2: desde [99..199]
+- Hilo 3: desde [200..299]
+
+El objetivo era observar cómo se comportan estos hilos al ejecutarse en paralelo y comparar el resultado cuando se ejecutan utilizando dos enfoques distintos: start() y run().
+
+**Prueba de Ejecución con start()**
+
+El método start() de la clase Thread en Java crea un hilo de ejecución real y lo lanza. Al utilizar start(), los hilos se ejecutan de manera concurrente, lo que provoca que los números se impriman en un orden aparentemente aleatorio, ya que cada hilo se ejecuta en su propio hilo de ejecución.
+
+![](img/thread_start_method.png)
+
+**Prueba de Ejecución con run()**
+
+Por otro lado, cuando se utiliza run(), el código se ejecuta de manera secuencial, sin crear hilos adicionales. Esto significa que los números se imprimen en un orden más predecible y secuencial, ya que solo se está ejecutando el hilo principal, y no los hilos concurrentes.
+
+![](img/thread_run_method.png)
+
+#### **3. Razón para el Uso de Streams**
+
+El uso de streams en esta implementación tiene un propósito fundamental: proporcionar un mejor control sobre los resultados, al garantizar que la salida se maneje de manera controlada y predecible dentro de los hilos. En programación concurrente, uno de los mayores desafíos es asegurar que los hilos no interfieran entre sí y que los recursos compartidos se gestionen adecuadamente.
+
+En el caso de este ejercicio, los streams permiten manejar la impresión de los números de manera eficiente y limpia, garantizando que los hilos puedan compartir recursos sin causar conflictos. En un escenario real, este enfoque mejora la legibilidad y el mantenimiento del código.
+
+**Refactorización del Código:** Uso de for loops en Lugar de Streams
+
+Para observar las diferencias en la ejecución, se refactorizó el código de CountThread para usar bucles for tradicionales en lugar de streams. Esta refactorización muestra cómo el comportamiento de los hilos cambia según el método de ejecución.
+
+![](img/count_thread_refactor.png)
+
+Al ejecutar nuevamente el código con start(), los resultados siguen siendo desordenados, ya que los hilos se ejecutan en paralelo y no hay garantía del orden de impresión.
+
+![](img/refactor_start.png)
+
+Sin embargo, cuando se utiliza run(), el código sigue ejecutándose de manera secuencial, imprimiendo los números en orden, ya que no se están creando hilos concurrentes.
+
+![](img/refactor_run.png)
+
 
 **Parte II - Ejercicio Black List Search**
 

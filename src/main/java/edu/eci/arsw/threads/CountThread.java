@@ -35,7 +35,7 @@ public class CountThread extends Thread {
      */
     @Override
     public void run() {
-        String results = IntStream.rangeClosed(a, b)
+         String results = IntStream.rangeClosed(a, b)
                 .mapToObj(Integer::toString)
                 .collect(Collectors.joining(", "));
         logger.info(results);
