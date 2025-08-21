@@ -4,8 +4,8 @@
 ## Ejercicio Introducción al paralelismo - Hilos - Caso BlackListSearch
 
 ### Integrantes
-Laura Natalia Perilla Quintero - lanapequin[]
-Santiago Botero Garcia - LePeanutButter
+- Laura Natalia Perilla Quintero - [Lanapequin](https://github.com/Lanapequin)
+- Santiago Botero Garcia - [LePeanutButter](https://github.com/LePeanutButter)
 
 ### Descripción
 Este ejercicio introduce los conceptos básicos de la programación con hilos en Java. Además, explora cómo implementar y controlar la ejecución de estos hilos, específicamente en el contexto de un caso práctico. Para facilitar el desarrollo, se ha utilizado Lombok para generar automáticamente los métodos getters y setters, mejorando la eficiencia del código.
