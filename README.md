@@ -3,6 +3,10 @@
 ### Arquitecturas de Software - ARSW
 ## Ejercicio Introducción al paralelismo - Hilos - Caso BlackListSearch
 
+### Integrantes
+- Laura Natalia Perilla Quintero - [Lanapequin](https://github.com/Lanapequin)
+- Santiago Botero Garcia - [LePeanutButter](https://github.com/LePeanutButter)
+
 ### Descripción
 Este ejercicio introduce los conceptos básicos de la programación con hilos en Java. Además, explora cómo implementar y controlar la ejecución de estos hilos, específicamente en el contexto de un caso práctico. Para facilitar el desarrollo, se ha utilizado Lombok para generar automáticamente los métodos getters y setters, mejorando la eficiencia del código.
 
@@ -61,44 +65,61 @@ Sin embargo, cuando se utiliza run(), el código sigue ejecutándose de manera s
 ![](img/refactor_run.png)
 
 
-**Parte II - Ejercicio Black List Search**
+### **Parte II - Ejercicio Black List Search**
 
+El propósito del ejercicio es implementar un componente de seguridad informática que valide la reputación de direcciones IP sospechosas. Para esto, se consulta si una IP aparece en listas negras conocidas (blacklists) que contienen registros de hosts potencialmente maliciosos.
 
-Para un software de vigilancia automática de seguridad informática se está desarrollando un componente encargado de validar las direcciones IP en varios miles de listas negras (de host maliciosos) conocidas, y reportar aquellas que existan en al menos cinco de dichas listas. 
+La política de detección es:
 
-Dicho componente está diseñado de acuerdo con el siguiente diagrama, donde:
+- Si una IP aparece en 5 o más listas negras, se considera no confiable.
+- Si aparece en menos de 5, se considera confiable.
 
-- HostBlackListsDataSourceFacade es una clase que ofrece una 'fachada' para realizar consultas en cualquiera de las N listas negras registradas (método 'isInBlacklistServer'), y que permite también hacer un reporte a una base de datos local de cuando una dirección IP se considera peligrosa. Esta clase NO ES MODIFICABLE, pero se sabe que es 'Thread-Safe'.
+Este proceso se repite para muchas IPs y sobre miles de listas negras, por lo que la solución debe ser rápida y eficiente, especialmente cuando:
 
-- HostBlackListsValidator es una clase que ofrece el método 'checkHost', el cual, a través de la clase 'HostBlackListDataSourceFacade', valida en cada una de las listas negras un host determinado. En dicho método está considerada la política de que al encontrarse un HOST en al menos cinco listas negras, el mismo será registrado como 'no confiable', o como 'confiable' en caso contrario. Adicionalmente, retornará la lista de los números de las 'listas negras' en donde se encontró registrado el HOST.
+- Las coincidencias están muy dispersas.
+- O no hay coincidencias (requiere revisar todas las listas).
 
-![](img/Model.png)
+El algoritmo inicial hacía la verificación de forma secuencial, lo que causaba que:
+- Algunas búsquedas tardaran varios segundos o más.
+- No se aprovechara la capacidad de múltiples núcleos del procesador.
 
-Al usarse el módulo, la evidencia de que se hizo el registro como 'confiable' o 'no confiable' se dá por lo mensajes de LOGs:
+Además, como no hay dependencia entre las verificaciones, este es un problema que puede considerarse "vergonzosamente paralelo", es decir, ideal para multihilos.
 
-INFO: HOST 205.24.34.55 Reported as trustworthy
+Para optimizar el rendimiento, se refactorizó el código para usar múltiples hilos, dividiendo el trabajo entre ellos.
 
-INFO: HOST 205.24.34.55 Reported as NOT trustworthy
+**Clase IPReputationSearch**
 
+![](img/ip_reputation_search_implementation.png)
 
-Al programa de prueba provisto (Main), le toma sólo algunos segundos análizar y reportar la dirección provista (200.24.34.55), ya que la misma está registrada más de cinco veces en los primeros servidores, por lo que no requiere recorrerlos todos. Sin embargo, hacer la búsqueda en casos donde NO hay reportes, o donde los mismos están dispersos en las miles de listas negras, toma bastante tiempo.
+**Propósito:**
 
-Éste, como cualquier método de búsqueda, puede verse como un problema [vergonzosamente paralelo](https://en.wikipedia.org/wiki/Embarrassingly_parallel), ya que no existen dependencias entre una partición del problema y otra.
+- Cada hilo busca la IP en una porción de las listas negras.
+- Guarda los índices donde la IP fue encontrada.
+- Permite conocer cuántas listas fueron revisadas.
 
-Para 'refactorizar' este código, y hacer que explote la capacidad multi-núcleo de la CPU del equipo, realice lo siguiente:
+**Método Refactorizado checkHost**
 
-1. Cree una clase de tipo Thread que represente el ciclo de vida de un hilo que haga la búsqueda de un segmento del conjunto de servidores disponibles. Agregue a dicha clase un método que permita 'preguntarle' a las instancias del mismo (los hilos) cuantas ocurrencias de servidores maliciosos ha encontrado o encontró.
+![](img/check_host_refactor.png)
 
-2. Agregue al método 'checkHost' un parámetro entero N, correspondiente al número de hilos entre los que se va a realizar la búsqueda (recuerde tener en cuenta si N es par o impar!). Modifique el código de este método para que divida el espacio de búsqueda entre las N partes indicadas, y paralelice la búsqueda a través de N hilos. Haga que dicha función espere hasta que los N hilos terminen de resolver su respectivo sub-problema, agregue las ocurrencias encontradas por cada hilo a la lista que retorna el método, y entonces calcule (sumando el total de ocurrencuas encontradas por cada hilo) si el número de ocurrencias es mayor o igual a _BLACK_LIST_ALARM_COUNT_. Si se da este caso, al final se DEBE reportar el host como confiable o no confiable, y mostrar el listado con los números de las listas negras respectivas. Para lograr este comportamiento de 'espera' revise el método [join](https://docs.oracle.com/javase/tutorial/essential/concurrency/join.html) del API de concurrencia de Java. Tenga también en cuenta:
+**Qué hace esta refactorización:**
 
-	* Dentro del método checkHost Se debe mantener el LOG que informa, antes de retornar el resultado, el número de listas negras revisadas VS. el número de listas negras total (línea 60). Se debe garantizar que dicha información sea verídica bajo el nuevo esquema de procesamiento en paralelo planteado.
+- Divide el total de listas negras en N bloques según la cantidad de hilos.
+- Lanza N instancias de IPReputationSearch (una por hilo).
+- Espera a que terminen (join).
+- Recolecta los resultados.
+- Reporta la IP como confiable o no confiable.
 
-	* Se sabe que el HOST 202.24.34.55 está reportado en listas negras de una forma más dispersa, y que el host 212.24.24.55 NO está en ninguna lista negra.
+Se probaron dos direcciones IP conocidas:
 
+1. 202.24.34.55 - Esta IP sí aparece en las listas negras, pero de forma dispersa. Resultado esperado: confiabilidad detectada correctamente.
+2. 212.24.24.55 - Esta IP no aparece en ninguna lista negra. Resultado esperado: detectada como confiable, sin falsos positivos.
 
-**Parte II.I Para discutir la próxima clase (NO para implementar aún)**
+![](img/first_test.png)
 
-La estrategia de paralelismo antes implementada es ineficiente en ciertos casos, pues la búsqueda se sigue realizando aún cuando los N hilos (en su conjunto) ya hayan encontrado el número mínimo de ocurrencias requeridas para reportar al servidor como malicioso. Cómo se podría modificar la implementación para minimizar el número de consultas en estos casos?, qué elemento nuevo traería esto al problema?
+![](img/second_test.png)
+
+Ambas pruebas se ejecutaron utilizando 10 hilos, y los resultados fueron correctos en todos los casos, con mejora en el tiempo de ejecución.
+
 
 **Parte III - Evaluación de Desempeño**
 
