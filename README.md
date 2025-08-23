@@ -126,20 +126,38 @@ Ambas pruebas se ejecutaron utilizando 10 hilos, y los resultados fueron correct
 A partir de lo anterior, implemente la siguiente secuencia de experimentos para realizar las validación de direcciones IP dispersas (por ejemplo 202.24.34.55), tomando los tiempos de ejecución de los mismos (asegúrese de hacerlos en la misma máquina):
 
 1. Un solo hilo.
-2. Tantos hilos como núcleos de procesamiento (haga que el programa determine esto haciendo uso del [API Runtime](https://docs.oracle.com/javase/7/docs/api/java/lang/Runtime.html)).
+![img1.png](img/img1.png)
+![img6.png](img/img6.png)
+2. Tantos hilos como núcleos de procesamiento: en este caso son 24 nucleos.
+![img2.png](img/img2.png)
+![img7.png](img/img7.png)
 3. Tantos hilos como el doble de núcleos de procesamiento.
-4. 50 hilos.
-5. 100 hilos.
+![img3.png](img/img3.png)
+![img8.png](img/img8.png)
+5. 50 hilos.
+![img4.png](img/img4.png)
+![img9.png](img/img9.png)
+6. 100 hilos.
+![img5.png](img/img5.png)
+![img10.png](img/img10.png)
 
 Al iniciar el programa ejecute el monitor jVisualVM, y a medida que corran las pruebas, revise y anote el consumo de CPU y de memoria en cada caso. ![](img/jvisualvm.png)
 
-Con lo anterior, y con los tiempos de ejecución dados, haga una gráfica de tiempo de solución vs. número de hilos. Analice y plantee hipótesis con su compañero para las siguientes preguntas (puede tener en cuenta lo reportado por jVisualVM):
+Con lo anterior, y con los tiempos de ejecución dados, haga una gráfica de tiempo de solución vs. número de hilos. 
+
+![img11.png](img/img11.png)
+
+Se observa que a medida que aumenta el número de hilos, el tiempo de solución disminuye. Sin embargo, a partir de cierto punto, incrementar la cantidad de hilos no representa una mejora significativa en el tiempo de ejecución.
+
+Analice y plantee hipótesis con su compañero para las siguientes preguntas (puede tener en cuenta lo reportado por jVisualVM):
 
 **Parte IV - Ejercicio Black List Search**
 
 1. Según la [ley de Amdahls](https://www.pugetsystems.com/labs/articles/Estimating-CPU-Performance-using-Amdahls-Law-619/#WhatisAmdahlsLaw?):
 
 	![](img/ahmdahls.png), donde _S(n)_ es el mejoramiento teórico del desempeño, _P_ la fracción paralelizable del algoritmo, y _n_ el número de hilos, a mayor _n_, mayor debería ser dicha mejora. Por qué el mejor desempeño no se logra con los 500 hilos?, cómo se compara este desempeño cuando se usan 200?. 
+
+Establecimos que el 80% del algoritmo es paralelizable, el valor de _P_ es 0.8, con base en esto, obtenemos que _S(500)_=4.96 y _S(200)_=4.90, el mejor desempeño no se logra con los 500 hilos porque, según la ley de Amdahl, a medida que aumentamos el número de hilos, la parte secuencial del algoritmo limita la mejora en el rendimiento. En el caso de 500 hilos, el rendimiento es solo ligeramente mejor que con 200 hilos, ya que el impacto de la parte secuencial sigue siendo significativo debido a que es una parte del trabajo que no se puede paralelizar.
 
 2. Cómo se comporta la solución usando tantos hilos de procesamiento como núcleos comparado con el resultado de usar el doble de éste?.
 
