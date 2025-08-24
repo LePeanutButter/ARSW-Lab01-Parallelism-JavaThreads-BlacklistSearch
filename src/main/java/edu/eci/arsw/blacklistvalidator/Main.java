@@ -5,6 +5,8 @@
  */
 package edu.eci.arsw.blacklistvalidator;
 
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,9 +20,13 @@ public class Main {
     
     public static void main(String[] a) {
         HostBlackListsValidator hblv = new HostBlackListsValidator();
-        List<Integer> blackListOcurrences = hblv.checkHost("200.24.34.55", 10);
+        Logger logger = Logger.getLogger(Main.class.getName());
+        LocalTime startTime = LocalTime.now();
+        List<Integer> blackListOcurrences = hblv.checkHost("202.24.34.55", 100);
+        LocalTime endTime = LocalTime.now();
         logger.log(Level.INFO, "The host was found in the following blacklists: {0}", blackListOcurrences);
-
+        Duration duration = Duration.between(startTime, endTime);
+        logger.log(Level.INFO, "Total execution time: {0} milliseconds", duration.toMillis());
     }
     
 }
