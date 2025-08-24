@@ -157,11 +157,14 @@ Analice y plantee hipótesis con su compañero para las siguientes preguntas (pu
 
 	![](img/ahmdahls.png), donde _S(n)_ es el mejoramiento teórico del desempeño, _P_ la fracción paralelizable del algoritmo, y _n_ el número de hilos, a mayor _n_, mayor debería ser dicha mejora. Por qué el mejor desempeño no se logra con los 500 hilos?, cómo se compara este desempeño cuando se usan 200?. 
 
-Establecimos que el 80% del algoritmo es paralelizable, el valor de _P_ es 0.8, con base en esto, obtenemos que _S(500)_=4.96 y _S(200)_=4.90, el mejor desempeño no se logra con los 500 hilos porque, según la ley de Amdahl, a medida que aumentamos el número de hilos, la parte secuencial del algoritmo limita la mejora en el rendimiento. En el caso de 500 hilos, el rendimiento es solo ligeramente mejor que con 200 hilos, ya que el impacto de la parte secuencial sigue siendo significativo debido a que es una parte del trabajo que no se puede paralelizar.
+- Establecimos que el 80% del algoritmo es paralelizable, el valor de _P_ es 0.8, con base en esto, obtenemos que _S(500)_=4.96 y _S(200)_=4.90, el mejor desempeño no se logra con los 500 hilos porque, según la ley de Amdahl, a medida que aumentamos el número de hilos, la parte secuencial del algoritmo limita la mejora en el rendimiento. En el caso de 500 hilos, el rendimiento es solo ligeramente mejor que con 200 hilos, ya que el impacto de la parte secuencial sigue siendo significativo debido a que es una parte del trabajo que no se puede paralelizar.
 
 2. Cómo se comporta la solución usando tantos hilos de procesamiento como núcleos comparado con el resultado de usar el doble de éste?.
 
+- Cuando se usan tantos hilos como núcleos, la ejecución no alcanza su mejor desempeño, al duplicar la cantidad de hilos, la solución se comporta de manera más eficiente ya que el tiempo de ejecución se reduce a la mitad, aprovechando mejor los recursos del procesador y logrando un procesamiento más rápido.
+
 3. De acuerdo con lo anterior, si para este problema en lugar de 100 hilos en una sola CPU se pudiera usar 1 hilo en cada una de 100 máquinas hipotéticas, la ley de Amdahls se aplicaría mejor?. Si en lugar de esto se usaran c hilos en 100/c máquinas distribuidas (siendo c es el número de núcleos de dichas máquinas), se mejoraría?. Explique su respuesta.
 
-
+- Si se usa 1 hilo en cada una de 100 máquinas, la Ley de Amdahl se cumple de manera más pura, porque cada hilo trabaja sin competir con otros en el mismo procesador, sin embargo, en la práctica se perdería mucho tiempo en la comunicación entre tantas máquinas.
+En cambio, si se usan varios hilos en menos máquinas, se aprovechan mejor los procesadores multinúcleo y se reduce la comunicación entre equipos, lo que hace más eficiente el uso de los recursos disponibles.
 
